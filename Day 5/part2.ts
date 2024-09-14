@@ -6,13 +6,25 @@ const strings = input.split("\n");
 let numberOfNiceStrings = 0;
 
 const hasTwoPairsOfNonOverlappingLetters = (string: string) => {
-	for (let i = 0; i < string.length - 1; i++) {
-		if (string.substring(i + 2).includes(string.substring(i, i + 2))) {
-			return true;
-		}
-	}
+	const letterPairStartingIndices = new Map<string, number[]>();
 
-	return false;
+    for(let i = 0; i < string.length - 1; i++){
+        const indices = letterPairStartingIndices.get(string.substring(i, i + 2)) || [];
+        
+        indices.push(i);
+
+        letterPairStartingIndices.set(string.substring(i, i + 2), indices);
+    }
+
+    for(const [letterPair, indices] of letterPairStartingIndices){
+        if(indices.length > 1){
+            if(indices[indices.length - 1] - indices[0] > 1){
+                return true;
+            }
+        }
+    }
+
+    return false;
 };
 
 const containsRepeatingLetterWithLetterBetween = (string: string) => {
