@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 
 const input = readFileSync("input.txt", "utf8").trim();
 const currentLocation = { x: 0, y: 0 };
-const visitedHouses = new Set();
+const visitedHouses = new Set<string>();
 
 visitedHouses.add(JSON.stringify(currentLocation));
 
