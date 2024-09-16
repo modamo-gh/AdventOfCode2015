@@ -2,42 +2,40 @@ import { readFileSync } from "fs";
 
 const input = readFileSync("input.txt", "utf8").trim();
 
-let overallResult = [...input.split("")];
+let overallResult = input;
 
 const memo = new Map<string, string>();
 
-const getNextLookAndSay = (sequenceArray: string[]): string[] => {
-	if (sequenceArray.length === 1) {
-		return ["1", sequenceArray[0]];
+const getNextLookAndSay = (sequence: string): string => {
+	if (sequence.length === 1) {
+		return `1${sequence}`;
 	}
 
-	const sequenceString = sequenceArray.join("");
+	if (memo.has(sequence)) {
+		const nextSequence = memo.get(sequence);
 
-	if (memo.has(sequenceString)) {
-		const nextSequence = memo.get(sequenceString);
-        
 		if (nextSequence) {
-			return nextSequence.split("");
+			return nextSequence;
 		}
 	}
 
-	const midpoint = sequenceArray.length / 2;
+	const midpoint = sequence.length / 2;
 
-	if (sequenceArray[midpoint - 1] !== sequenceArray[midpoint]) {
-		return getNextLookAndSay(sequenceArray.slice(0, midpoint)).concat(
-			getNextLookAndSay(sequenceArray.slice(midpoint))
-		);
+	if (sequence[midpoint - 1] !== sequence[midpoint]) {
+		return `${getNextLookAndSay(
+			sequence.slice(0, midpoint)
+		)}${getNextLookAndSay(sequence.slice(midpoint))}`;
 	}
 
 	let number = "";
 	let frequency = 0;
-	let result: string[] = [];
+	let result = "";
 
-	for (let j = 0; j < sequenceArray.length; j++) {
-		const currentNumber = sequenceArray[j];
+	for (let j = 0; j < sequence.length; j++) {
+		const currentNumber = sequence[j];
 
 		if (currentNumber !== number) {
-			result = result.concat((frequency + number).split(""));
+			result += `${frequency}${number}`;
 			number = currentNumber;
 			frequency = 0;
 		}
@@ -45,10 +43,10 @@ const getNextLookAndSay = (sequenceArray: string[]): string[] => {
 		frequency += 1;
 	}
 
-	result = result.concat((frequency + number).split(""));
+	result += `${frequency}${number}`;
 	result = result[0] === "0" ? result.slice(1) : result;
 
-	memo.set(sequenceArray.join(""), result.join(""));
+	memo.set(sequence, result);
 
 	return result;
 };
