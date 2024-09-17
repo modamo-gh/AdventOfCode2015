@@ -30,7 +30,7 @@ const hasIncreasingStraight = (password: string) => {
 	const regex = /([a-z])(?!\1)([a-z])(?!\1)(?!\2)([a-z])/g;
 	const matches = password.matchAll(regex);
 
-    for (const match of matches) {
+	for (const match of matches) {
 		if (
 			match[2].charCodeAt(0) - match[1].charCodeAt(0) === 1 &&
 			match[3].charCodeAt(0) - match[2].charCodeAt(0) === 1
@@ -74,5 +74,5 @@ const getNextPassword = (password: string) => {
 };
 
 console.time();
-console.log(getNextPassword(password));
+console.log(getNextPassword(incrementPassword(password)));
 console.timeEnd();
