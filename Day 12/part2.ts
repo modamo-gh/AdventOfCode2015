@@ -1,11 +1,11 @@
 import { readFileSync } from "fs";
 
 const document = readFileSync("input.txt", "utf8");
-const json = JSON.parse(document);
-
-let sum = 0;
 
 type JSONvalue = number | JSONvalue[] | {[key: string]: JSONvalue}
+const json: JSONvalue = JSON.parse(document);
+
+let sum = 0;
 
 const traverse = (element: JSONvalue) => {
 	if (Array.isArray(element)) {
