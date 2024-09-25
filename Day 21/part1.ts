@@ -1,6 +1,7 @@
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync } from "fs";
 import Warrior from "./Warrior";
 import Item from "./Item";
+import Loadout from "./Loadout";
 
 const input = readFileSync("input.txt", "utf-8");
 
@@ -12,20 +13,21 @@ for (const line of lines) {
 
 	switch (tokens[0]) {
 		case "Hit Points":
-			boss.hp = parseInt(tokens[1]);
+			boss.originalHP = parseInt(tokens[1]);
+			boss.hp = boss.originalHP;
 			break;
 		case "Damage":
-			boss.damage = parseInt(tokens[1]);
+			boss.originalDamage = parseInt(tokens[1]);
+			boss.damage = boss.originalDamage;
 			break;
 		case "Armor":
-			boss.armor = parseInt(tokens[1]);
+			boss.originalArmor = parseInt(tokens[1]);
+			boss.armor = boss.originalArmor;
 			break;
 	}
 }
 
-const me = new Warrior("me");
-
-me.hp = 100;
+const me = new Warrior("me", 100);
 
 const itemShop = readFileSync("itemShop.txt", "utf8");
 const itemGroups = itemShop.split("\n\n");
@@ -68,7 +70,7 @@ for (const itemGroup of itemGroups) {
 	}
 }
 
-const allPossibleLoadouts: Item[][] = [];
+const allPossibleLoadouts: Loadout[] = [];
 const currentLoadout: Item[] = [];
 const purchasedRings = new Set<string>();
 const purchasedItemTypes = new Map<string, number>([
@@ -82,7 +84,7 @@ const generateLayouts = () => {
 		if (item.type === "weapon" && purchasedItemTypes.get("weapon") === 0) {
 			purchasedItemTypes.set("weapon", 1);
 			currentLoadout.push(item);
-			allPossibleLoadouts.push([...currentLoadout]);
+			allPossibleLoadouts.push(new Loadout([...currentLoadout]));
 			generateLayouts();
 			currentLoadout.pop();
 			purchasedItemTypes.set("weapon", 0);
@@ -93,7 +95,7 @@ const generateLayouts = () => {
 		) {
 			purchasedItemTypes.set("armor", 1);
 			currentLoadout.push(item);
-			allPossibleLoadouts.push([...currentLoadout]);
+			allPossibleLoadouts.push(new Loadout([...currentLoadout]));
 			generateLayouts();
 			currentLoadout.pop();
 			purchasedItemTypes.set("armor", 0);
@@ -106,7 +108,7 @@ const generateLayouts = () => {
 			purchasedRings.add(item.name);
 			purchasedItemTypes.set("ring", purchasedItemTypes.get("ring") + 1);
 			currentLoadout.push(item);
-			allPossibleLoadouts.push([...currentLoadout]);
+			allPossibleLoadouts.push(new Loadout([...currentLoadout]));
 			generateLayouts();
 			currentLoadout.pop();
 			purchasedItemTypes.set("ring", purchasedItemTypes.get("ring") - 1);
@@ -117,5 +119,17 @@ const generateLayouts = () => {
 
 generateLayouts();
 
-writeFileSync("loadouts.txt", JSON.stringify(allPossibleLoadouts));
-console.log(allPossibleLoadouts.length)
+let lowestWinnableCost = Infinity;
+
+for (const loadout of allPossibleLoadouts) {
+	me.equipLoadout(loadout);
+
+	if (me.winsBattle(boss)) {
+		lowestWinnableCost = Math.min(loadout.cost, lowestWinnableCost);
+	}
+
+	me.reset();
+	boss.reset();
+}
+
+console.log(lowestWinnableCost);
